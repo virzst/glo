@@ -15,7 +15,7 @@ class SpotifyPlayerPage extends StatefulWidget {
 class _SpotifyPlayerPageState
     extends State<SpotifyPlayerPage> {
 
-  final AudioPlayer player = AudioPlayer();
+  final player = MusicService.player;
   final TextEditingController controller =
       TextEditingController();
 
@@ -87,7 +87,6 @@ class _SpotifyPlayerPageState
 
   @override
   void dispose() {
-    player.dispose();
     super.dispose();
   }
 

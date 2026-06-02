@@ -17,6 +17,7 @@ import 'spyware.dart';
 import 'spotify_player_page.dart';
 import 'anime_home.dart';
 import 'chatbot_page.dart';
+import 'youtube_page.dart';
 
 class ToolsPage extends StatelessWidget {
   final String username;
@@ -750,6 +751,20 @@ class ToolsPage extends StatelessWidget {
                           ),
                         );
                       },
+                    ),
+                    _buildToolOption(
+                      icon: Icons.ondemand_video,
+                      label: "YouTube Player",
+                      color: lightPink,
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                          builder: (_) => const YoutubePage(),
+                        ),
+                      );
+                     },
                     ),
                     _buildToolOption(
                       icon: Icons.camera_alt,
