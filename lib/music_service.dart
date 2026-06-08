@@ -6,4 +6,6 @@ class MusicService {
   static String title = '';
   static String artist = '';
   static String thumbnail = '';
+
+  static bool get hasSong => title.isNotEmpty;
 }

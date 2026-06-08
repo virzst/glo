@@ -8,6 +8,7 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart' as dom;
 
 class PhoneLookupPage extends StatefulWidget {
+  final String sessionKey;
 
   const PhoneLookupPage({super.key});
 

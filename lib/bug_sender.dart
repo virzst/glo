@@ -37,12 +37,12 @@ class _BugSenderPageState extends State<BugSenderPage> {
   final Color primaryWhite = Colors.white;
   final Color cardGlass = Colors.white.withOpacity(0.05);
   final Color borderGlass = Colors.white.withOpacity(0.1);
-
+  
   @override
-void initState() {
+  void initState() {
   super.initState();
-  _fetchSenders();
-  _fetchGlobalSenders();
+   _fetchSenders();
+   _fetchSendersGlobal();
 }
 
   Future<void> _fetchSenders() async {
@@ -124,13 +124,18 @@ void initState() {
       });
     }
   }
+  
+  Future<void> _refreshSenders() async { 
+  setState(() => isRefreshing = true);
+  
+  await _fetchSenders();
+  await _fetchSendersGlobal();
+  
+  setState(() => isRefreshing = false); 
+  
+  _showSnackBar("List refreshed!", isError: false); 
+}
 
-Future<void> _refreshSenders() async {
-    setState(() => isRefreshing = true);
-    _fetchSenders(),
-    _fetchGlobalSenders(),
-    _showSnackBar("List refreshed!", isError: false); // Tambahin baris ini
-  }
   
 
   void _showAddSenderDialog() {

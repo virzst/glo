@@ -46,7 +46,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   bool _isSending = false;
   String? _responseMessage;
-
+  
+  String selectedSender = "private"; 
+  List<dynamic> senderList = [];
+  
   // Tema Warna Biru
   final Color primaryBg = const Color(0xFF121212);
   final Color cardBg = const Color(0xFF2A2A2D);
@@ -108,7 +111,47 @@ void initState() {
       });
     });
   }
+  
+  Future<bool> fetchSender() async {
+    try {
+      // TODO: Tulis logika API/proses untuk mengambil data private sender di sini
+      // Contoh pengisian data sementara agar senderList.isNotEmpty tidak error:
+      // setState(() {
+      //   senderList = [{"sessionName": "Private Session Active"}];
+      // });
+      return true; 
+    } catch (e) {
+      print("Error fetchSender: $e");
+      return false;
+    }
+  }
 
+  Future<bool> fetchSenderGlobal() async {
+    try {
+      // TODO: Tulis logika API/proses untuk mengambil data global sender di sini
+      return true;
+    } catch (e) {
+      print("Error fetchSenderGlobal: $e");
+      return false;
+    }
+  }
+
+  void _showAlert(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+  
   @override
   void dispose() {
     _fadeController?.dispose();
@@ -856,55 +899,56 @@ if (!senderConnected) {
 
 
   Widget _buildInputPanel() {
-   return Column(
-  crossAxisAlignment: CrossAxisAlignment.stretch,
-  children: [
-
-    _buildSenderSelector(),
-    Container(
-  margin: const EdgeInsets.only(top: 10),
-  width: double.infinity,
-  padding: const EdgeInsets.all(12),
-  decoration: BoxDecoration(
-    color: cardBg,
-    borderRadius: BorderRadius.circular(12),
-  ),
-  child: Text(
-    senderList.isNotEmpty
-        ? senderList.first["sessionName"].toString()
-        : "No Sender Connected",
-    textAlign: TextAlign.center,
-    style: TextStyle(
-      color: senderList.isNotEmpty
-          ? Colors.greenAccent
-          : Colors.redAccent,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
-
-    const SizedBox(height: 20),
-
-    Container(
-      margin: const EdgeInsets.only(top: 10),
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(12),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _buildSenderSelector(),
+      Container(
+        margin: const EdgeInsets.only(top: 10),
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          senderList.isNotEmpty
+              ? senderList.first["sessionName"].toString()
+              : "No Sender Connected",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: senderList.isNotEmpty
+                ? Colors.greenAccent
+                : Colors.redAccent,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      child: Text(
-        senderList.isNotEmpty
-            ? senderList.first["sessionName"].toString()
-            : "No Sender Connected",
-        textAlign: TextAlign.center,
-      ),
-    ),
+      
+      const SizedBox(height: 20),
 
-    const SizedBox(height: 20),
-    
-    
-    Widget _buildSenderSelector() {
+      Container(
+        margin: const EdgeInsets.only(top: 10),
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          senderList.isNotEmpty
+              ? senderList.first["sessionName"].toString()
+              : "No Sender Connected",
+          textAlign: TextAlign.center,
+        ),
+      ),
+
+      const SizedBox(height: 20),
+    ], // <-- Sekarang semua widget masuk ke dalam children Column
+  ); // <-- Menutup return Column dengan benar
+} // <-- Menutup fungsi _buildInputPanel() sebelum membuat fungsi baru
+
+Widget _buildSenderSelector() {
   return Container(
     padding: const EdgeInsets.all(4),
     decoration: BoxDecoration(
@@ -1003,6 +1047,7 @@ if (!senderConnected) {
     ),
   );
 }
+
     _buildModeSelector(),
     
      return Column(
