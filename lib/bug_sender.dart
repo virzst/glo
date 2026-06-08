@@ -24,7 +24,6 @@ class BugSenderPage extends StatefulWidget {
 
 class _BugSenderPageState extends State<BugSenderPage> {
   List<dynamic> senderList = [];
-  List<dynamic> globalSenderList = [];
   bool isLoading = false;
   bool isRefreshing = false;
   String? errorMessage;
@@ -37,13 +36,12 @@ class _BugSenderPageState extends State<BugSenderPage> {
   final Color primaryWhite = Colors.white;
   final Color cardGlass = Colors.white.withOpacity(0.05);
   final Color borderGlass = Colors.white.withOpacity(0.1);
-  
+
   @override
   void initState() {
-  super.initState();
-   _fetchSenders();
-   _fetchSendersGlobal();
-}
+    super.initState();
+    _fetchSenders();
+  }
 
   Future<void> _fetchSenders() async {
     setState(() {
@@ -84,58 +82,12 @@ class _BugSenderPageState extends State<BugSenderPage> {
       });
     }
   }
-  
-  Future<void> _fetchSendersGlobal() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = null;
-    });
 
-    try {
-      final response = await http.get(
-        Uri.parse("${baseUrl}/mySenderGlobal?key=${widget.sessionKey}"),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data["valid"] == true) {
-          setState(() {
-            senderList = data["connections"] ?? [];
-          });
-        } else {
-          setState(() {
-            errorMessage = data["message"] ?? "Failed to fetch senders";
-          });
-        }
-      } else {
-        setState(() {
-          errorMessage = "Server error: ${response.statusCode}";
-        });
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = "Connection failed: $e";
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-        isRefreshing = false;
-      });
-    }
+Future<void> _refreshSenders() async {
+    setState(() => isRefreshing = true);
+    await _fetchSenders();
+    _showSnackBar("List refreshed!", isError: false); // Tambahin baris ini
   }
-  
-  Future<void> _refreshSenders() async { 
-  setState(() => isRefreshing = true);
-  
-  await _fetchSenders();
-  await _fetchSendersGlobal();
-  
-  setState(() => isRefreshing = false); 
-  
-  _showSnackBar("List refreshed!", isError: false); 
-}
-
   
 
   void _showAddSenderDialog() {
