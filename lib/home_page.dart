@@ -67,22 +67,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late VideoPlayerController _videoController;
   late ChewieController _chewieController;
   bool _isVideoInitialized = false;
+@override
+void initState() {
+  super.initState();
 
-  @override
-  void initState() {
-    super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+  _fadeController = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 2),
+  )..repeat(reverse: true);
 
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
+  _pulseController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1500),
+  )..repeat(reverse: true);
 
-    _initializeVideoPlayer();
-  }
+  fetchSender();
+
+  _initializeVideoPlayer();
+}
 
   void _initializeVideoPlayer() {
     _videoController = VideoPlayerController.asset('assets/videos/banner.mp4');
@@ -428,6 +430,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> _sendBug() async {
     final rawInput = targetController.text.trim();
     final key = widget.sessionKey;
+    final senderConnected = selectedSender == "private"
+    ? await fetchSender()
+    : await fetchSenderGlobal();
+
+if (!senderConnected) {
+  _showAlert(
+    "Sender Offline",
+    selectedSender == "private"
+        ? "Private sender tidak terhubung."
+        : "Global sender tidak terhubung.",
+  );
+  return;
+}
 
     if (_selectedBugMode == "number") {
       final target = formatPhoneNumber(rawInput);
@@ -841,7 +856,156 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
 
   Widget _buildInputPanel() {
-    return Column(
+   return Column(
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  children: [
+
+    _buildSenderSelector(),
+    Container(
+  margin: const EdgeInsets.only(top: 10),
+  width: double.infinity,
+  padding: const EdgeInsets.all(12),
+  decoration: BoxDecoration(
+    color: cardBg,
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Text(
+    senderList.isNotEmpty
+        ? senderList.first["sessionName"].toString()
+        : "No Sender Connected",
+    textAlign: TextAlign.center,
+    style: TextStyle(
+      color: senderList.isNotEmpty
+          ? Colors.greenAccent
+          : Colors.redAccent,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
+    const SizedBox(height: 20),
+
+    Container(
+      margin: const EdgeInsets.only(top: 10),
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        senderList.isNotEmpty
+            ? senderList.first["sessionName"].toString()
+            : "No Sender Connected",
+        textAlign: TextAlign.center,
+      ),
+    ),
+
+    const SizedBox(height: 20),
+    
+    
+    Widget _buildSenderSelector() {
+  return Container(
+    padding: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: cardBg,
+      borderRadius: BorderRadius.circular(15),
+      border: Border.all(
+        color: primaryPink.withOpacity(0.4),
+      ),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () async {
+              setState(() {
+                selectedSender = "private";
+              });
+
+              final connected = await fetchSender();
+
+              if (!connected) {
+                _showAlert(
+                  "Sender Offline",
+                  "Private sender tidak terhubung.",
+                );
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: selectedSender == "private"
+                    ? accentPink
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.person, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    "PRIVATE",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        Expanded(
+          child: GestureDetector(
+            onTap: () async {
+              setState(() {
+                selectedSender = "global";
+              });
+
+              final connected = await fetchSenderGlobal();
+
+              if (!connected) {
+                _showAlert(
+                  "Sender Offline",
+                  "Global sender tidak terhubung.",
+                );
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: selectedSender == "global"
+                    ? Colors.amber
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.public, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    "GLOBAL",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+    _buildModeSelector(),
+    
+     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildModeSelector(),

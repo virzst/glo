@@ -24,6 +24,7 @@ class BugSenderPage extends StatefulWidget {
 
 class _BugSenderPageState extends State<BugSenderPage> {
   List<dynamic> senderList = [];
+  List<dynamic> globalSenderList = [];
   bool isLoading = false;
   bool isRefreshing = false;
   String? errorMessage;
@@ -38,10 +39,11 @@ class _BugSenderPageState extends State<BugSenderPage> {
   final Color borderGlass = Colors.white.withOpacity(0.1);
 
   @override
-  void initState() {
-    super.initState();
-    _fetchSenders();
-  }
+void initState() {
+  super.initState();
+  _fetchSenders();
+  _fetchGlobalSenders();
+}
 
   Future<void> _fetchSenders() async {
     setState(() {
@@ -82,10 +84,51 @@ class _BugSenderPageState extends State<BugSenderPage> {
       });
     }
   }
+  
+  Future<void> _fetchSendersGlobal() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse("${baseUrl}/mySenderGlobal?key=${widget.sessionKey}"),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data["valid"] == true) {
+          setState(() {
+            senderList = data["connections"] ?? [];
+          });
+        } else {
+          setState(() {
+            errorMessage = data["message"] ?? "Failed to fetch senders";
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = "Server error: ${response.statusCode}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "Connection failed: $e";
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+        isRefreshing = false;
+      });
+    }
+  }
 
 Future<void> _refreshSenders() async {
     setState(() => isRefreshing = true);
-    await _fetchSenders();
+    _fetchSenders(),
+    _fetchGlobalSenders(),
     _showSnackBar("List refreshed!", isError: false); // Tambahin baris ini
   }
   
